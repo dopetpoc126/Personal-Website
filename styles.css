@@ -160,10 +160,6 @@ body {
               color var(--motion-duration) var(--motion-easing);
 }
 
-body.nav-open {
-    overflow: hidden;
-}
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -214,52 +210,9 @@ body.loaded .hero-char {
 .logo { font-family: var(--font-family-display); font-weight: 800; font-size: 1.75rem; color: var(--primary-color); }
 
 /* --- Navigation & Buttons --- */
-.mobile-only {
-    display: none;
-}
-
-.mobile-nav {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--background-color);
-    z-index: 10001;
-    transform: translateX(100%);
-    transition: transform 400ms var(--motion-easing);
-    padding: 16px 24px;
-    display: flex;
-    flex-direction: column;
-}
-
-body.nav-open .mobile-nav {
-    transform: translateX(0);
-}
-
-.mobile-nav-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 64px;
-    flex-shrink: 0;
-}
-
-.mobile-nav .site-nav {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mobile-nav .site-nav ul {
-    flex-direction: column;
-    gap: 16px;
-    text-align: center;
-}
-.mobile-nav .site-nav a {
-    font-size: 1.5rem;
-}
+.site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; }
+.site-nav a { text-decoration: none; font-weight: 500; padding: 12px 24px; border-radius: var(--shape-corner-full); transition: all 200ms ease; color: var(--text-color); }
+.site-nav a:hover { background-color: var(--primary-color); color: var(--surface-color); }
 
 .icon-button { background-color: transparent; border: none; border-radius: var(--shape-corner-full); width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--text-color); cursor: pointer; transition: all 200ms ease; }
 .icon-button:hover { background-color: var(--secondary-color); color: var(--surface-color); transform: scale(1.1); }
@@ -407,18 +360,18 @@ body.loaded .in-view {
 /* MOBILE OPTIMIZATIONS                                                       */
 /* -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  .desktop-nav {
-    display: none;
-  }
-  .mobile-only {
-      display: inline-flex;
-  }
   .content-section {
       padding: 80px 0;
   }
-  /* NEW: Center align text on mobile */
   .body-large {
       text-align: center;
+  }
+  .site-nav a {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+  }
+  .logo {
+      font-size: 1.5rem;
   }
 }
 
