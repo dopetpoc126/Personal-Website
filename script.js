@@ -41,12 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, SPLASH_ANIMATION_DURATION + FADE_OUT_DURATION);
     }
     
-    // --- NEW: Generate animated placeholder backgrounds ---
+    // --- Animated Placeholder Backgrounds ---
     function createAnimatedPlaceholders() {
         const placeholders = document.querySelectorAll('.project-image-placeholder');
         if (!placeholders.length) return;
 
-        // Get computed styles to read CSS variables
         const style = getComputedStyle(document.documentElement);
         const c1 = style.getPropertyValue('--secondary-color').trim();
         const c2 = style.getPropertyValue('--primary-color').trim();
@@ -91,10 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupHeroTextAnimation();
     runSplashScreen();
-    createAnimatedPlaceholders(); // Apply the animated backgrounds
+    createAnimatedPlaceholders();
 
     const themeToggle = document.getElementById("theme-toggle");
     const header = document.querySelector('.site-header');
+    const blurOverlay = document.querySelector(".blur-overlay");
 
     // Header auto-hide logic
     let lastScrollTop = 0;
@@ -138,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle.addEventListener("click", () => {
             currentTheme = body.getAttribute("data-theme") === "light" ? "dark" : "light";
             body.setAttribute("data-theme", currentTheme);
-            // Re-apply backgrounds with new theme colors
             createAnimatedPlaceholders();
             
             themeToggle.innerHTML = currentTheme === "dark"
@@ -147,19 +146,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Smooth scrolling
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
+    // --- NEW: Mobile Navigation Logic ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuClose = document.getElementById('menu-close');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    if (menuToggle && menuClose && mobileNav) {
+        menuToggle.addEventListener('click', () => {
+            body.classList.add('nav-open');
         });
-    });
+
+        menuClose.addEventListener('click', () => {
+            body.classList.remove('nav-open');
+        });
+        
+        // Close nav when a link is clicked
+        mobileNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                body.classList.remove('nav-open');
+            });
+        });
+    }
 
     // Card Expansion Logic
     let hoverTimer = null;
@@ -170,6 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const expandCard = (card) => {
         if (activeCard === card || isExpanding) return;
         
+        window.scrollTo(0, 0);
+
         closeCard();
         
         isExpanding = true;
@@ -177,21 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const rect = card.getBoundingClientRect();
         card.style.position = 'fixed';
-        card.style.top = rect.top + 'px';
-        card.style.left = rect.left + 'px';
-        card.style.width = rect.width + 'px';
-        card.style.height = rect.height + 'px';
+        card.style.top = `${rect.top}px`;
+        card.style.left = `${rect.left}px`;
+        card.style.width = `${rect.width}px`;
+        card.style.height = `${rect.height}px`;
         card.style.zIndex = '10000';
         
         card.offsetHeight;
         
         card.classList.add("focused");
         body.classList.add("expanded-mode");
-
-        // Auto-scroll to center the expanded card
-        setTimeout(() => {
-            card.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 500);
+        
+        blurOverlay.classList.add("overlay-active");
 
         setTimeout(() => {
             isExpanding = false;
@@ -205,12 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeCard) {
             activeCard.classList.remove("focused");
             body.classList.remove("expanded-mode");
+            blurOverlay.classList.remove("overlay-active");
 
             activeCard.style.position = '';
             activeCard.style.top = '';
             activeCard.style.left = '';
             activeCard.style.width = '';
-            activeCard.style.height = '';
+            active-card.style.height = '';
             activeCard.style.zIndex = '';
             
             activeCard = null;
@@ -218,41 +225,37 @@ document.addEventListener('DOMContentLoaded', () => {
         isExpanding = false;
     };
 
-    const startHoverTimer = (card) => {
-        clearTimeout(hoverTimer);
-        if (card.classList.contains("focused")) return;
-        
-        hoverTimer = setTimeout(() => {
-            expandCard(card);
-        }, HOVER_DELAY);
-    };
+    // --- REFACTORED: Card Interaction Logic for Mobile and Desktop ---
+    const isTouchDevice = 'ontouchstart' in window;
+    
+    document.querySelectorAll('.project-card').forEach(card => {
+        // Click to expand is the primary interaction for all devices
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.card-action-button')) {
+                return; // Don't expand if the 'Learn More' button was clicked
+            }
+            if (!card.classList.contains('focused')) {
+                clearTimeout(hoverTimer); // Cancel any pending hover-expand
+                expandCard(card);
+            }
+        });
 
-    const cancelHoverTimer = () => {
-        if (hoverTimer) {
-            clearTimeout(hoverTimer);
-            hoverTimer = null;
+        // Add hover-to-expand only for non-touch devices (desktops)
+        if (!isTouchDevice) {
+            card.addEventListener('mouseenter', () => {
+                if (!card.classList.contains('focused')) {
+                     hoverTimer = setTimeout(() => expandCard(card), HOVER_DELAY);
+                }
+            });
+
+            card.addEventListener('mouseleave', () => {
+                clearTimeout(hoverTimer);
+            });
         }
-    };
+    });
 
-    document.addEventListener("mouseenter", (e) => {
-        const card = e.target.closest(".project-card");
-        if (card && !card.classList.contains("focused")) {
-            startHoverTimer(card);
-        }
-    }, true);
-
-    document.addEventListener("mouseleave", (e) => {
-        const card = e.target.closest(".project-card");
-        if (card && !card.classList.contains("focused")) {
-            cancelHoverTimer();
-        }
-    }, true);
-
-    document.addEventListener("click", (e) => {
-        if (e.target.closest('.card-action-button')) {
-            return;
-        }
-
+    // Global listener to close the card
+    document.addEventListener('click', (e) => {
         if (activeCard && !activeCard.contains(e.target)) {
             closeCard();
         }
@@ -263,31 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeCard();
         }
     });
-
-    let touchTimer = null;
-    
-    document.addEventListener("touchstart", (e) => {
-        const card = e.target.closest(".project-card");
-        if (card && !card.classList.contains("focused")) {
-            touchTimer = setTimeout(() => {
-                expandCard(card);
-            }, HOVER_DELAY);
-        }
-    }, { passive: true });
-
-    document.addEventListener("touchend", (e) => {
-        if (touchTimer) {
-            clearTimeout(touchTimer);
-            touchTimer = null;
-        }
-    }, { passive: true });
-
-    document.addEventListener("touchmove", (e) => {
-        if (touchTimer) {
-            clearTimeout(touchTimer);
-            touchTimer = null;
-        }
-    }, { passive: true });
 
     // Initialize animations for content sections
     const observerOptions = {
