@@ -146,27 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Mobile Navigation Logic
-    const menuToggle = document.getElementById('menu-toggle');
-    const menuClose = document.getElementById('menu-close');
-    const mobileNav = document.getElementById('mobile-nav');
-
-    if (menuToggle && menuClose && mobileNav) {
-        menuToggle.addEventListener('click', () => {
-            body.classList.add('nav-open');
-        });
-
-        menuClose.addEventListener('click', () => {
-            body.classList.remove('nav-open');
-        });
-        
-        mobileNav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                body.classList.remove('nav-open');
-            });
-        });
-    }
-
     // Card Expansion Logic
     let hoverTimer = null;
     let activeCard = null;
@@ -176,13 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const expandCard = (card) => {
         if (activeCard === card || isExpanding) return;
         
-        window.scrollTo(0, 0);
-
-        closeCard();
-        
-        isExpanding = true;
-        activeCard = card;
-        
         const rect = card.getBoundingClientRect();
         card.style.position = 'fixed';
         card.style.top = `${rect.top}px`;
@@ -190,6 +162,13 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.width = `${rect.width}px`;
         card.style.height = `${rect.height}px`;
         card.style.zIndex = '10000';
+        
+        window.scrollTo(0, 0);
+        
+        closeCard();
+        
+        isExpanding = true;
+        activeCard = card;
         
         card.offsetHeight;
         
@@ -216,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeCard.style.top = '';
             activeCard.style.left = '';
             activeCard.style.width = '';
-            activeCard.style.height = ''; // TYPO FIX: active-card -> activeCard
+            activeCard.style.height = '';
             activeCard.style.zIndex = '';
             
             activeCard = null;
@@ -224,7 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isExpanding = false;
     };
 
-    // REFACTORED: Card Interaction Logic for Mobile and Desktop
     const isTouchDevice = 'ontouchstart' in window;
     
     document.querySelectorAll('.project-card').forEach(card => {
@@ -251,7 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Global listener to close the card
     document.addEventListener('click', (e) => {
         if (activeCard && !activeCard.contains(e.target) && !e.target.closest('.project-card')) {
              closeCard();
