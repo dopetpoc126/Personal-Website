@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- NEW: Mobile Navigation Logic ---
+    // Mobile Navigation Logic
     const menuToggle = document.getElementById('menu-toggle');
     const menuClose = document.getElementById('menu-close');
     const mobileNav = document.getElementById('mobile-nav');
@@ -160,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
             body.classList.remove('nav-open');
         });
         
-        // Close nav when a link is clicked
         mobileNav.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 body.classList.remove('nav-open');
@@ -217,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeCard.style.top = '';
             activeCard.style.left = '';
             activeCard.style.width = '';
-            active-card.style.height = '';
+            activeCard.style.height = ''; // TYPO FIX: active-card -> activeCard
             activeCard.style.zIndex = '';
             
             activeCard = null;
@@ -225,22 +224,20 @@ document.addEventListener('DOMContentLoaded', () => {
         isExpanding = false;
     };
 
-    // --- REFACTORED: Card Interaction Logic for Mobile and Desktop ---
+    // REFACTORED: Card Interaction Logic for Mobile and Desktop
     const isTouchDevice = 'ontouchstart' in window;
     
     document.querySelectorAll('.project-card').forEach(card => {
-        // Click to expand is the primary interaction for all devices
         card.addEventListener('click', (e) => {
             if (e.target.closest('.card-action-button')) {
-                return; // Don't expand if the 'Learn More' button was clicked
+                return;
             }
             if (!card.classList.contains('focused')) {
-                clearTimeout(hoverTimer); // Cancel any pending hover-expand
+                clearTimeout(hoverTimer);
                 expandCard(card);
             }
         });
 
-        // Add hover-to-expand only for non-touch devices (desktops)
         if (!isTouchDevice) {
             card.addEventListener('mouseenter', () => {
                 if (!card.classList.contains('focused')) {
@@ -256,8 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global listener to close the card
     document.addEventListener('click', (e) => {
-        if (activeCard && !activeCard.contains(e.target)) {
-            closeCard();
+        if (activeCard && !activeCard.contains(e.target) && !e.target.closest('.project-card')) {
+             closeCard();
         }
     });
 
