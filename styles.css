@@ -1,0 +1,430 @@
+/* -------------------------------------------------------------------------- */
+/* SPLASH SCREEN                                                              */
+/* -------------------------------------------------------------------------- */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--background-color);
+    z-index: 100000;
+    pointer-events: none;
+    overflow: hidden;
+    transition: opacity 0.5s ease-out;
+}
+
+#splash-screen.hidden {
+    opacity: 0;
+}
+
+.splash-shape {
+    position: absolute;
+    transform-origin: center center;
+    animation-name: expandAndRotate;
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+    animation-fill-mode: forwards; /* Keeps the final state */
+}
+
+/* Define individual shapes */
+.shape1 { 
+    top: 20%; 
+    left: 15%; 
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%; 
+    background-color: var(--primary-color); 
+    animation-duration: 1.5s; 
+    animation-delay: 0s; 
+}
+.shape2 { 
+    top: 40%; 
+    left: 65%; 
+    width: 150px; 
+    height: 150px; 
+    animation-duration: 1.6s; 
+    animation-delay: 0.1s; 
+}
+.shape3 { 
+    top: 60%; 
+    left: 10%; 
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%; 
+    background-color: var(--secondary-color); 
+    animation-duration: 1.4s; 
+    animation-delay: 0.25s; 
+}
+.shape4 { 
+    top: 10%; 
+    left: 70%; 
+    width: 100px; 
+    height: 100px; 
+    animation-duration: 1.7s; 
+    animation-delay: 0.15s; 
+}
+.shape5 { 
+    top: 75%; 
+    left: 50%; 
+    width: 100px; 
+    height: 100px; 
+    border-radius: 50%; 
+    background-color: var(--accent-color); 
+    animation-duration: 1.5s; 
+    animation-delay: 0.2s; 
+}
+
+/* SVG Path Styling */
+.splash-shape path {
+    stroke: var(--primary-color);
+    stroke-width: 10;
+    stroke-linecap: round;
+    fill: none;
+}
+.shape4 path {
+    stroke: var(--secondary-color);
+}
+
+@keyframes expandAndRotate {
+    from {
+        transform: scale(0) rotate(0deg);
+        opacity: 1;
+    }
+    to {
+        transform: scale(25) rotate(90deg);
+        opacity: 0;
+    }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* EXPRESSIVE DESIGN TOKENS (Inspired by Reference Image) */
+/* -------------------------------------------------------------------------- */
+
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  /* --- COLOR (Light Theme) --- */
+  --primary-color: #6A38C2;
+  --secondary-color: #E2ADF2;
+  --accent-color: #F7C873;
+  --text-color: #1C1B1F;
+  --surface-color: #FDF7FF;
+  --background-color: #F3EDF7;
+
+  /* --- TYPOGRAPHY --- */
+  --font-family-display: 'Syne', sans-serif;
+  --font-family-body: 'Inter', sans-serif;
+
+  /* --- SHAPE --- */
+  --shape-corner-small: 8px;
+  --shape-corner-medium: 16px;
+  --shape-corner-large: 24px;
+  --shape-corner-full: 100px;
+  
+  /* --- MOTION --- */
+  --motion-easing: cubic-bezier(0.4, 0.0, 0.2, 1.0);
+  --motion-duration: 400ms;
+}
+
+body[data-theme="dark"] {
+  /* --- COLOR (Dark Theme) --- */
+  --primary-color: #D0BCFF;
+  --secondary-color: #633B48;
+  --accent-color: #F0B322;
+  --text-color: #E6E1E5;
+  --surface-color: #141218;
+  --background-color: #211F26;
+}
+
+/* -------------------------------------------------------------------------- */
+/* BASE STYLES */
+/* -------------------------------------------------------------------------- */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-body);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  transition: background-color var(--motion-duration) var(--motion-easing),
+              color var(--motion-duration) var(--motion-easing);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* TYPography */
+/* -------------------------------------------------------------------------- */
+.display-large { font-family: var(--font-family-display); font-size: clamp(3.5rem, 2rem + 6vw, 8rem); font-weight: 800; line-height: 1; letter-spacing: -0.03em; text-transform: uppercase; }
+.display-medium { font-family: var(--font-family-display); font-size: clamp(3rem, 2rem + 5vw, 6rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
+.headline-medium { font-size: clamp(1.25rem, 1rem + 1.25vw, 2rem); font-weight: 400; line-height: 1.4; color: var(--primary-color); }
+.title-large { font-family: var(--font-family-display); font-size: 1.75rem; font-weight: 700; color: var(--text-color); }
+.body-large { font-size: 1.125rem; line-height: 1.6; max-width: 720px; text-align: left; margin-left: auto; margin-right: auto; }
+.body-medium { font-size: 1rem; line-height: 1.5; }
+
+/* -------------------------------------------------------------------------- */
+/* Hero Text Animation Styles                                                 */
+/* -------------------------------------------------------------------------- */
+.hero-line {
+    display: flex;
+    justify-content: center;
+}
+
+.hero-char {
+    display: inline-block;
+    transform: translateY(115%);
+    transition: transform .5s var(--motion-easing);
+}
+
+body.loaded .hero-char {
+    transform: translateY(0);
+}
+
+/* -------------------------------------------------------------------------- */
+/* COMPONENTS */
+/* -------------------------------------------------------------------------- */
+
+/* --- Header --- */
+.site-header {
+  position: sticky; top: 16px; margin: 16px auto; width: calc(100% - 32px); max-width: 1200px; z-index: 1000;
+  border-radius: var(--shape-corner-full); background-color: color-mix(in srgb, var(--surface-color) 80%, transparent);
+  backdrop-filter: blur(10px); border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+  transition: transform 300ms ease-out, background-color var(--motion-duration) ease;
+}
+.site-header.header-hidden { transform: translateY(-150%); }
+.site-header .container { display: flex; justify-content: space-between; align-items: center; height: 64px; }
+.logo { font-family: var(--font-family-display); font-weight: 800; font-size: 1.75rem; color: var(--primary-color); }
+
+/* --- Navigation & Buttons --- */
+.site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; }
+.site-nav a { text-decoration: none; font-weight: 500; padding: 12px 24px; border-radius: var(--shape-corner-full); transition: all 200ms ease; color: var(--text-color); }
+.site-nav a:hover { background-color: var(--primary-color); color: var(--surface-color); }
+.icon-button { background-color: transparent; border: none; border-radius: var(--shape-corner-full); width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--text-color); cursor: pointer; transition: all 200ms ease; }
+.icon-button:hover { background-color: var(--secondary-color); color: var(--surface-color); transform: scale(1.1); }
+.filled-button { display: inline-block; background-color: var(--primary-color); color: var(--surface-color); padding: 20px 40px; font-size: 1rem; font-weight: 700; text-decoration: none; border-radius: var(--shape-corner-full); transition: transform 200ms ease, box-shadow 200ms ease; }
+.filled-button:hover { transform: scale(1.05); }
+
+/* --- Project Card --- */
+.project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 48px; }
+
+.project-card { 
+    position: relative;
+    z-index: 1; 
+    display: flex; 
+    flex-direction: column; 
+    background-color: var(--surface-color);
+    color: var(--text-color); 
+    text-decoration: none; 
+    overflow: hidden;
+    border: 2px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+    transition: transform 300ms var(--motion-easing), box-shadow 300ms var(--motion-easing); 
+    border-radius: var(--shape-corner-large); 
+    cursor: pointer; 
+}
+
+.project-card:hover:not(.focused) { 
+    transform: translateY(-8px); 
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1); 
+    z-index: 2; 
+}
+
+/* Pill Progress Bar */
+.project-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 5px;
+    background-color: var(--primary-color);
+    border-radius: var(--shape-corner-full);
+    transition: width 1s linear;
+}
+
+.project-card:hover::before {
+    width: 100%;
+}
+
+/* UPDATED: Removed complex data URI. JS will now apply the background. */
+.project-image-placeholder { 
+    height: 200px; 
+    background-color: var(--secondary-color); /* Fallback color */
+    background-size: cover;
+}
+.card-content { 
+    padding: 32px; 
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+.card-content h3 { margin: 0 0 8px 0; }
+.card-content p {
+    text-align: center;
+}
+
+/* Standard Card Button */
+.card-action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding: 12px 24px;
+    background-color: var(--primary-color);
+    color: var(--surface-color);
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: var(--shape-corner-full);
+    transition: transform 200ms ease;
+    position: relative;
+    z-index: 5;
+}
+
+.card-action-button:hover {
+    transform: scale(1.05);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* LAYOUT & SECTIONS */
+/* -------------------------------------------------------------------------- */
+main {
+  padding-top: 32px;
+  position: relative;
+  z-index: 2;
+}
+.hero-section { min-height: 90vh; display: flex; align-items: center; text-align: center; padding: 64px 0; }
+.hero-content { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.content-section { padding: 120px 0; }
+.content-section h2 { text-align: center; margin-top: 0; margin-bottom: 64px; }
+.social-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin-top: 32px; }
+.social-links .icon-button.large { width: 64px; height: 64px; font-size: 1.75rem; background-color: var(--surface-color); border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent); }
+
+/* -------------------------------------------------------------------------- */
+/* CARD EXPANSION & ANIMATIONS */
+/* -------------------------------------------------------------------------- */
+.blur-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: transparent;
+    z-index: 9999; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.5s ease; 
+}
+.blur-overlay.overlay-active { opacity: 1; pointer-events: auto; }
+body.expanded-mode { overflow: hidden; }
+
+body.expanded-mode .site-header {
+  transform: translateY(-150%);
+}
+
+body.expanded-mode .project-card:not(.focused) { opacity: 0; transform: scale(0.9); transition: opacity 0.4s ease, transform 0.4s ease; }
+.project-card.focused { position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: clamp(300px, 90vw, 800px) !important; height: clamp(400px, 80vh, 600px) !important; z-index: 10000 !important; border-radius: var(--shape-corner-large) !important; overflow-y: auto !important; transition: all 0.5s var(--motion-easing) !important; }
+
+/* Scroll Animations */
+.anim-fade-in, .anim-slide-in {
+    opacity: 0;
+}
+body.loaded .anim-fade-in,
+body.loaded .anim-slide-in {
+    transition: opacity 0.8s var(--motion-easing), transform 0.8s var(--motion-easing);
+}
+.anim-slide-in { transform: translateY(50px); }
+body.loaded .in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* Media query from original file to hide nav on mobile */
+@media (max-width: 768px) {
+  .site-nav {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* DOODLE BACKGROUND                                                          */
+/* -------------------------------------------------------------------------- */
+.doodle-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.doodle {
+    position: absolute;
+    background-color: color-mix(in srgb, var(--secondary-color) 40%, transparent);
+    animation: drift 30s infinite linear;
+    bottom: -150px;
+}
+
+/* Styles for Squiggle SVGs */
+.squiggle {
+    background-color: transparent;
+}
+.squiggle path {
+    stroke: color-mix(in srgb, var(--secondary-color) 40%, transparent);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+/* Unique positions, sizes, and animation delays for each doodle */
+.d1 { left: 15%; width: 80px; height: 80px; animation-delay: -2s; border-radius: 50%; }
+.d2 { left: 5%; width: 25px; height: 25px; animation-delay: -25s; animation-duration: 20s; border-radius: 50%; }
+.d3 { left: 80%; width: 30px; height: 100px; animation-delay: -8s; }
+.d4 { left: 90%; width: 60px; height: 60px; animation-delay: -15s; animation-duration: 40s; border-radius: 50%; }
+.d5 { left: 50%; width: 20px; height: 20px; animation-delay: -1s; border-radius: 50%;}
+.d6 { left: 30%; width: 100px; height: 100px; animation-delay: -18s; animation-duration: 35s; border-radius: 50%;}
+.d7 { left: 65%; width: 40px; height: 40px; animation-delay: -5s; }
+
+/* Squiggle positions and delays */
+.s1 { left: 20%; width: 100px; height: 100px; animation-delay: -5s; animation-duration: 25s;}
+.s2 { left: 55%; width: 120px; height: 100px; animation-delay: -12s; animation-duration: 32s;}
+.s3 { left: 85%; width: 80px; height: 100px; animation-delay: -20s; animation-duration: 28s;}
+
+
+/* The animation that makes the doodles float up and rotate */
+@keyframes drift {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-120vh) rotate(360deg);
+        opacity: 0;
+    }
+}

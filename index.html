@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shriyan's Portfolio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="light">
+
+    <div id="splash-screen">
+        <div class="splash-shape shape1"></div>
+        <svg class="splash-shape shape2" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,80 Q50,10 90,80 T170,80" />
+        </svg>
+        <div class="splash-shape shape3"></div>
+        <svg class="splash-shape shape4" viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,10 C90,40 10,80 50,110" />
+        </svg>
+        <div class="splash-shape shape5"></div>
+    </div>
+
+    <div class="doodle-background">
+        <div class="doodle d1"></div>
+        <div class="doodle d2"></div>
+        <div class="doodle d3"></div>
+        <div class="doodle d4"></div>
+        <div class="doodle d5"></div>
+        <div class="doodle d6"></div>
+        <div class="doodle d7"></div>
+        <svg class="doodle squiggle s1" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,80 Q50,10 90,80" />
+        </svg>
+        <svg class="doodle squiggle s2" viewBox="0 0 120 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,50 C40,10 80,90 110,50" />
+        </svg>
+        <svg class="doodle squiggle s3" viewBox="0 0 100 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50,10 C90,40 10,80 50,110" />
+        </svg>
+    </div>
+
+    <div class="blur-overlay"></div>
+    
+    <header class="site-header">
+        <div class="container">
+            <span class="logo">Shriyan</span>
+            <nav class="site-nav">
+                <ul>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#portfolio">Portfolio</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" class="icon-button" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section anim-fade-in">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="display-large">
+                        <span class="hero-line">Hello, I'm</span>
+                        <span class="hero-line">Shriyan</span>
+                    </h1>
+                    <p class="headline-medium">A passionate Computer Science student at VIT Chennai, creating delightful digital experiences.</p>
+                    <a href="#portfolio" class="filled-button">View My Work</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="content-section">
+            <div class="container anim-slide-in">
+                <h2 class="display-medium">About Me</h2>
+                <p class="body-large">I'm driven by a curiosity for technology and a passion for building things that are both beautiful and functional. My journey in computer science has led me to explore web development, UI/UX principles, and the endless possibilities of code. I believe in continuous learning and creating solutions that make a difference.</p>
+            </div>
+        </section>
+
+        <section id="portfolio" class="content-section">
+            <div class="container anim-slide-in">
+                <h2 class="display-medium">Portfolio</h2>
+                <div class="project-grid">
+                    <div class="project-card">
+                        <div class="project-image-placeholder"></div>
+                        <div class="card-content">
+                            <h3 class="title-large">Optimus Prime Live Wallpaper</h3>
+                            <p class="body-medium">A cool live wallpaper app showcasing the G1 Optimus Prime Transformation</p>
+                            <a href="https://github.com/dopetpoc126/Optimus-Prime-Live-Wallpaper" class="card-action-button" target="_blank" rel="noopener noreferrer">
+                                Learn More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-image-placeholder"></div>
+                        <div class="card-content">
+                            <h3 class="title-large">Anadrome</h3>
+                            <p class="body-medium">An android app which allows users to apply any video as a live wallpaper along with additional functionality</p>
+                            <a href="https://github.com/dopetpoc126/Anadrome" class="card-action-button" target="_blank" rel="noopener noreferrer">
+                                Learn More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <div class="project-image-placeholder"></div>
+                        <div class="card-content">
+                            <h3 class="title-large">Emotional Support Chatbot</h3>
+                            <p class="body-medium">An emotive AI-powered chatbot that can alter its answers according to a user’s emotional state and allows back and forth between AI personas representing well-known personalities.</p>
+                            <a href="https://github.com/dopetpoc126/Emotional-Support-Chatbot" class="card-action-button" target="_blank" rel="noopener noreferrer">
+                                Learn More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="content-section">
+            <div class="container anim-slide-in">
+                <h2 class="display-medium">Get In Touch</h2>
+                <p class="body-large">Have a project in mind or just want to say hello? I'd love to hear from you. Feel free to connect with me on social media.</p>
+                <div class="social-links">
+                    <a href="https://github.com/your-username" target="_blank" class="icon-button large" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="https://linkedin.com/in/your-profile" target="_blank" class="icon-button large" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://twitter.com/your-handle" target="_blank" class="icon-button large" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="mailto:your.email@example.com" class="icon-button large" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
