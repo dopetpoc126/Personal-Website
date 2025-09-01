@@ -51,8 +51,7 @@
     <header class="site-header">
         <div class="container">
             <span class="logo">Shriyan</span>
-            <nav class="site-nav">
-                <ul>
+            <nav class="site-nav desktop-nav"> <ul>
                     <li><a href="#about">About</a></li>
                     <li><a href="#portfolio">Portfolio</a></li>
                     <li><a href="#contact">Contact</a></li>
@@ -61,8 +60,27 @@
             <button id="theme-toggle" class="icon-button" aria-label="Toggle theme">
                 <i class="fas fa-moon"></i>
             </button>
+            <button id="menu-toggle" class="icon-button mobile-only" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
+
+    <div class="mobile-nav" id="mobile-nav">
+        <div class="mobile-nav-header">
+            <span class="logo">Shriyan</span>
+            <button id="menu-close" class="icon-button" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="site-nav">
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
 
     <main>
         <section class="hero-section anim-fade-in">
