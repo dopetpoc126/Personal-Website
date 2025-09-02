@@ -41,7 +41,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }, SPLASH_ANIMATION_DURATION + FADE_OUT_DURATION);
     }
     
-    // --- Animated Placeholder Backgrounds ---
+    // --- Clock Widget Logic ---
+    function setupClockWidget() {
+        const timeEl = document.getElementById('clock-time');
+        const dateEl = document.getElementById('clock-date');
+        
+        if (!timeEl || !dateEl) return;
+
+        function updateClock() {
+            const now = new Date();
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            timeEl.textContent = `${hours}:${minutes}:${seconds}`;
+
+            const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+            dateEl.textContent = now.toLocaleDateString(undefined, dateOptions);
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    }
+
+    // --- Generate animated placeholder backgrounds ---
     function createAnimatedPlaceholders() {
         const placeholders = document.querySelectorAll('.project-image-placeholder');
         if (!placeholders.length) return;
@@ -88,22 +111,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- INITIALIZE ALL SCRIPTS ---
     setupHeroTextAnimation();
     runSplashScreen();
     createAnimatedPlaceholders();
+    setupClockWidget(); 
 
     const themeToggle = document.getElementById("theme-toggle");
     const header = document.querySelector('.site-header');
-    const blurOverlay = document.querySelector(".blur-overlay");
 
     // Header auto-hide logic
     let lastScrollTop = 0;
     let isHoveringHeader = false;
 
-    header.addEventListener('mouseenter', () => {
-        isHoveringHeader = true;
-    });
-
+    header.addEventListener('mouseenter', () => { isHoveringHeader = true; });
     header.addEventListener('mouseleave', () => {
         isHoveringHeader = false;
         if (window.scrollY > lastScrollTop) {
@@ -113,14 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('scroll', () => {
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        if (!body.classList.contains("expanded-mode")) {
-            if (!isHoveringHeader) {
-                if (scrollTop > lastScrollTop) {
-                    header.classList.add('header-hidden');
-                } else {
-                    header.classList.remove('header-hidden');
-                }
-            }
+        if (!body.classList.contains("expanded-mode") && !isHoveringHeader) {
+            header.classList.toggle('header-hidden', scrollTop > lastScrollTop);
         }
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     });
@@ -129,22 +144,46 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = body.getAttribute('data-theme') || 'light';
 
     if (themeToggle) {
-        themeToggle.innerHTML = currentTheme === 'dark'
-            ? '<i class="fas fa-sun"></i>'
-            : '<i class="fas fa-moon"></i>';
+        themeToggle.innerHTML = currentTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     }
 
     if (themeToggle) {
+        // START: Modified Theme Toggle Logic for Hero Text Re-animation
+        const heroChars = document.querySelectorAll('.hero-char');
+
         themeToggle.addEventListener("click", () => {
+            // 1. Add classes to instantly hide the characters without a transition
+            heroChars.forEach(char => {
+                char.classList.add('no-transition');
+                body.classList.remove('loaded'); // This sends them to their 'out' state
+            });
+
+            // 2. Change the theme while characters are hidden
             currentTheme = body.getAttribute("data-theme") === "light" ? "dark" : "light";
             body.setAttribute("data-theme", currentTheme);
             createAnimatedPlaceholders();
+            themeToggle.innerHTML = currentTheme === "dark" ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             
-            themeToggle.innerHTML = currentTheme === "dark"
-                ? '<i class="fas fa-sun"></i>'
-                : '<i class="fas fa-moon"></i>';
+            // 3. Force a browser reflow and then re-enable transitions to play the 'in' animation
+            // A tiny timeout is a reliable way to ensure the browser registers the state change.
+            setTimeout(() => {
+                heroChars.forEach(char => char.classList.remove('no-transition'));
+                body.classList.add('loaded'); // This triggers the staggered 'in' animation
+            }, 20);
         });
+        // END: Modified Theme Toggle Logic
     }
+
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetElement = document.querySelector(this.getAttribute('href'));
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
 
     // Card Expansion Logic
     let hoverTimer = null;
@@ -154,108 +193,84 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const expandCard = (card) => {
         if (activeCard === card || isExpanding) return;
-        
-        const rect = card.getBoundingClientRect();
-        card.style.position = 'fixed';
-        card.style.top = `${rect.top}px`;
-        card.style.left = `${rect.left}px`;
-        card.style.width = `${rect.width}px`;
-        card.style.height = `${rect.height}px`;
-        card.style.zIndex = '10000';
-        
-        window.scrollTo(0, 0);
-        
         closeCard();
-        
         isExpanding = true;
         activeCard = card;
-        
-        card.offsetHeight;
-        
+        const rect = card.getBoundingClientRect();
+        Object.assign(card.style, { position: 'fixed', top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px`, zIndex: '10000' });
+        card.offsetHeight; // Force reflow
         card.classList.add("focused");
         body.classList.add("expanded-mode");
-        
-        blurOverlay.classList.add("overlay-active");
-
-        setTimeout(() => {
-            isExpanding = false;
-        }, 500);
+        setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "center" }), 500);
+        setTimeout(() => isExpanding = false, 500);
     };
 
     const closeCard = () => {
         clearTimeout(hoverTimer);
         hoverTimer = null;
-        
         if (activeCard) {
             activeCard.classList.remove("focused");
             body.classList.remove("expanded-mode");
-            blurOverlay.classList.remove("overlay-active");
-
-            activeCard.style.position = '';
-            activeCard.style.top = '';
-            activeCard.style.left = '';
-            activeCard.style.width = '';
-            activeCard.style.height = '';
-            activeCard.style.zIndex = '';
-            
+            Object.assign(activeCard.style, { position: '', top: '', left: '', width: '', height: '', zIndex: '' });
             activeCard = null;
         }
         isExpanding = false;
     };
 
-    const isTouchDevice = 'ontouchstart' in window;
-    
-    document.querySelectorAll('.project-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            if (e.target.closest('.card-action-button')) {
-                return;
-            }
-            if (!card.classList.contains('focused')) {
-                clearTimeout(hoverTimer);
-                expandCard(card);
-            }
-        });
+    const startHoverTimer = (card) => {
+        clearTimeout(hoverTimer);
+        if (card.classList.contains("focused")) return;
+        hoverTimer = setTimeout(() => expandCard(card), HOVER_DELAY);
+    };
 
-        if (!isTouchDevice) {
-            card.addEventListener('mouseenter', () => {
-                if (!card.classList.contains('focused')) {
-                     hoverTimer = setTimeout(() => expandCard(card), HOVER_DELAY);
-                }
-            });
-
-            card.addEventListener('mouseleave', () => {
-                clearTimeout(hoverTimer);
-            });
+    const cancelHoverTimer = () => {
+        if (hoverTimer) {
+            clearTimeout(hoverTimer);
+            hoverTimer = null;
         }
-    });
+    };
 
-    document.addEventListener('click', (e) => {
-        if (activeCard && !activeCard.contains(e.target) && !e.target.closest('.project-card')) {
-             closeCard();
-        }
+    document.addEventListener("mouseenter", (e) => {
+        const card = e.target.closest(".project-card");
+        if (card && !card.classList.contains("focused")) startHoverTimer(card);
+    }, true);
+
+    document.addEventListener("mouseleave", (e) => {
+        const card = e.target.closest(".project-card");
+        if (card && !card.classList.contains("focused")) cancelHoverTimer();
+    }, true);
+
+    document.addEventListener("click", (e) => {
+        if (e.target.closest('.card-action-button')) return;
+        if (activeCard && !activeCard.contains(e.target)) closeCard();
     });
 
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && activeCard) {
-            closeCard();
-        }
+        if (e.key === "Escape" && activeCard) closeCard();
     });
+
+    let touchTimer = null;
+    document.addEventListener("touchstart", (e) => {
+        const card = e.target.closest(".project-card");
+        if (card && !card.classList.contains("focused")) {
+            touchTimer = setTimeout(() => expandCard(card), HOVER_DELAY);
+        }
+    }, { passive: true });
+
+    document.addEventListener("touchend", () => {
+        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
+    }, { passive: true });
+
+    document.addEventListener("touchmove", () => {
+        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
+    }, { passive: true });
 
     // Initialize animations for content sections
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('in-view');
-            }
+            if (entry.isIntersecting) entry.target.classList.add('in-view');
         });
-    }, observerOptions);
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    document.querySelectorAll('.anim-fade-in, .anim-slide-in').forEach(el => {
-        observer.observe(el);
-    });
+    document.querySelectorAll('.anim-fade-in, .anim-slide-in').forEach(el => observer.observe(el));
 });
