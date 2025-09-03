@@ -1,4 +1,4 @@
-# Shriyan's Portfolio
+# Portfolio Website
 
 A modern, interactive personal portfolio website showcasing projects, skills, and contact information.  
 Built with **HTML, CSS, and JavaScript**—optimized for smooth animations, responsive layouts, and engaging user interaction.
@@ -25,3 +25,7 @@ Clone the repo and open `index.html` in a browser:
 git clone https://github.com/dopetpoc126/portfolio.git
 cd portfolio
 open index.html   # or double-click in file explorer
+```
+
+## License
+Distributed under the MIT License. See `LICENSE` for more information.
