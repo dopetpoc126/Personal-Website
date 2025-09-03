@@ -119,6 +119,7 @@
   /* --- TYPOGRAPHY --- */
   --font-family-display: 'Syne', sans-serif;
   --font-family-body: 'Inter', sans-serif;
+  --font-family-mono: 'Courier Prime', monospace;
 
   /* --- SHAPE --- */
   --shape-corner-small: 8px;
@@ -179,54 +180,32 @@ body {
 /* -------------------------------------------------------------------------- */
 /* Hero Text Animation Styles                                                 */
 /* -------------------------------------------------------------------------- */
+.hero-content {
+    perspective: 1000px;
+}
+
+.hero-content .display-large {
+    transform-style: preserve-3d;
+    transition: transform 0.2s ease-out;
+}
+
 .hero-line {
     display: flex;
     justify-content: center;
-    position: relative;
 }
 
 .hero-char {
     display: inline-block;
-    transform: translateY(115%);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    z-index: 1;
-}
-
-.hero-char:hover {
-    transform: translateY(-15px) scale(1.2) rotate(5deg);
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.hero-char.cursor-near {
-    transform: translateY(-12px) scale(1.15) rotate(3deg);
-    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.25));
-    transition: all 0.2s ease;
-}
-
-.hero-char.cursor-far {
-    transform: translateY(-6px) scale(1.08) rotate(1deg);
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-    transition: all 0.3s ease;
-}
-
-.hero-char.magnetic {
-    transition: all 0.1s ease;
+    --char-translate-y: 115%;
+    --char-translate-z: 0px;
+    transform: translateY(var(--char-translate-y)) translateZ(var(--char-translate-z));
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 body.loaded .hero-char {
-    transform: translateY(0);
+    --char-translate-y: 0%;
 }
 
-/* Magnetic effect container */
-.hero-content {
-    position: relative;
-}
-
-
-
-/* Helper class to temporarily disable transitions for the theme-change animation */
 .no-transition {
     transition: none !important;
 }
@@ -409,7 +388,7 @@ main {
   z-index: 2;
 }
 .hero-section { min-height: 90vh; display: flex; align-items: center; text-align: center; padding: 64px 0; }
-.hero-content { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+/* .hero-content is now in the animation section above */
 .content-section { padding: 120px 0; }
 .content-section h2 { text-align: center; margin-top: 0; margin-bottom: 64px; }
 .social-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin-top: 32px; }
@@ -591,7 +570,20 @@ body.loaded .in-view {
     width: 100%;
     max-width: 400px;
     margin: 0 auto;
+    cursor: default;
   }
+  
+  .project-card:hover:not(.focused) {
+      transform: none;
+      box-shadow: none;
+  }
+  .project-card::before {
+      display: none;
+  }
+  .card-action-button {
+      cursor: pointer;
+  }
+
 
   .card-content {
     padding: 24px;
@@ -634,7 +626,6 @@ body.loaded .in-view {
     text-align: center;
   }
 
-  /* Extra small mobile devices */
   @media (max-width: 480px) {
     .site-header {
       margin: 4px auto;
@@ -668,7 +659,6 @@ body.loaded .in-view {
     }
   }
 
-  /* Landscape mobile optimization */
   @media (max-width: 768px) and (orientation: landscape) {
     .site-header {
       margin: 4px auto;
@@ -697,6 +687,7 @@ body.loaded .in-view {
     overflow: hidden;
     z-index: -1;
     pointer-events: none;
+    transition: opacity 0.5s ease;
 }
 
 .doodle {
@@ -704,6 +695,11 @@ body.loaded .in-view {
     background-color: color-mix(in srgb, var(--secondary-color) 40%, transparent);
     animation: drift 30s infinite linear;
     bottom: -150px;
+}
+
+#python-doodle {
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .squiggle {
@@ -761,7 +757,7 @@ body.loaded .in-view {
 .js-logo { left: 40%; width: 50px; height: 50px; animation-delay: -14s; animation-duration: 28s; border-radius: 10px; }
 .html-logo { left: 10%; width: 45px; height: 50px; animation-delay: -19s; animation-duration: 37s; }
 .css-logo { left: 80%; width: 48px; height: 52px; animation-delay: -6s; animation-duration: 29s; }
-.python-logo { left: 25%; width: 55px; height: 55px; animation-delay: -24s; animation-duration: 38s; }
+#python-doodle { left: 25%; width: 55px; height: 55px; animation-delay: -24s; animation-duration: 38s; }
 
 /* Widget-inspired backdrop shapes */
 .weather-cloud { left: 15%; width: 70px; height: 45px; animation-delay: -8s; animation-duration: 45s; border-radius: 35px; background: linear-gradient(135deg, var(--accent-color), var(--secondary-color)); }
@@ -819,4 +815,175 @@ body.party-mode .doodle {
 
 body.party-mode .doodle.tech-logo {
     animation-duration: 5s !important;
+}
+
+/* Secret Matrix Theme */
+body[data-theme="matrix"] {
+    --primary-color: #00FF41;
+    --secondary-color: #008F11;
+    --accent-color: #00FF41;
+    --text-color: #00FF41;
+    --surface-color: #0D0208;
+    --background-color: #000000;
+    --font-family-body: var(--font-family-mono);
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.7);
+}
+
+body[data-theme="matrix"] .hero-content .display-large,
+body[data-theme="matrix"] .hero-content .headline-medium {
+    text-shadow: 0 0 15px #000, 0 0 25px #000;
+}
+
+body[data-theme="matrix"] .doodle-background {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#command-line-background {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--primary-color);
+    font-family: var(--font-family-mono);
+    padding: 16px;
+    z-index: -1;
+    white-space: pre-wrap;
+    word-break: break-all;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.7);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+body[data-theme="matrix"] #command-line-background {
+    display: block;
+    opacity: 0.3;
+}
+
+#command-line-background::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 1.2em;
+    background-color: var(--primary-color);
+    animation: blink 1s steps(1) infinite;
+    vertical-align: bottom;
+    box-shadow: 0 0 5px rgba(0, 255, 65, 0.7);
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+
+/* Confetti Styles */
+.confetti-particle {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100001;
+    transform: translate(-50%, -50%);
+    animation: confetti-fall 2s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        opacity: 1;
+        transform: translate(var(--x-end), var(--y-end)) rotateZ(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--x-end), calc(var(--y-end) + 400px)) rotateZ(360deg);
+    }
+}
+
+/* Night Mode Suggestion Toast */
+.toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    padding: 16px 24px;
+    border-radius: var(--shape-corner-medium);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 20000;
+    animation: toast-in 0.5s var(--motion-easing) forwards;
+}
+
+.toast-notification.out {
+    animation: toast-out 0.5s var(--motion-easing) forwards;
+}
+
+.toast-notification p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.toast-notification button {
+    background-color: var(--primary-color);
+    color: var(--surface-color);
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--shape-corner-full);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes toast-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* --- Matrix Glitch Transition --- */
+body.glitching::after {
+    content: 'INITIALIZING...';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-family-mono);
+    font-size: 2rem;
+    color: #00FF41;
+    background-color: #000;
+    z-index: 100001;
+    animation: matrix-glitch 1s steps(1, end);
+}
+
+@keyframes matrix-glitch {
+    0% { content: 'SYSTEM INTERRUPT...'; opacity: 1; }
+    20% { content: 'REROUTING CONNECTION...'; }
+    40% { clip-path: inset(20% 0 50% 0); } /* Glitch effect */
+    60% { content: 'ACCESSING MAINFRAME...'; clip-path: inset(40% 0 10% 0); }
+    80% { content: 'WAKING UP...'; clip-path: inset(0 0 0 0); }
+    99% { opacity: 1; }
+    100% { opacity: 0; }
 }

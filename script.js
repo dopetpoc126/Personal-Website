@@ -3,7 +3,7 @@ console.log(
   `%cHello, curious developer! Thanks for checking out my portfolio's code.`,
   "color: #6A38C2; font-size: 16px; font-family: sans-serif; font-weight: bold;"
 );
-console.log("Try entering the Konami code (↑ ↑ ↓ ↓ ← → ← → B A) for a surprise!");
+console.log("Try entering the Konami code (↑ ↑ ↓ ↓ ← → ← → B A) or typing 'matrix' for a surprise!");
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,11 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroLines = document.querySelectorAll('.hero-line');
         if (!heroLines.length) return;
 
-        let charIndex = 0;
-
         heroLines.forEach(line => {
             const text = line.textContent;
             line.innerHTML = '';
+            let charIndex = 0;
 
             text.split('').forEach((char) => {
                 const span = document.createElement('span');
@@ -27,6 +26,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 span.style.transitionDelay = `${charIndex * 40}ms`;
                 line.appendChild(span);
                 charIndex++;
+            });
+        });
+    }
+    
+    // --- 3D TILT INTERACTION FOR HERO TEXT ---
+    function setup3dTiltInteraction() {
+        const heroContent = document.querySelector('.hero-content');
+        if (!heroContent) return;
+        
+        const heroTitle = heroContent.querySelector('.display-large');
+        
+        heroContent.addEventListener('mousemove', (e) => {
+            if (body.classList.contains('intro-animating')) return;
+
+            const rect = heroContent.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / centerY * -10;
+            const rotateY = (x - centerX) / centerX * 10;
+            
+            heroTitle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            
+            const heroChars = heroContent.querySelectorAll('.hero-char');
+            heroChars.forEach(char => {
+                const charRect = char.getBoundingClientRect();
+                const charCenterX = charRect.left + charRect.width / 2;
+                const charCenterY = charRect.top + charRect.height / 2;
+                const distance = Math.sqrt(Math.pow(e.clientX - charCenterX, 2) + Math.pow(e.clientY - charCenterY, 2));
+                
+                const maxEffectDistance = 150;
+                if (distance < maxEffectDistance) {
+                    const push = (1 - (distance / maxEffectDistance)) * 40;
+                    char.style.setProperty('--char-translate-z', `${push}px`);
+                } else {
+                    char.style.setProperty('--char-translate-z', '0px');
+                }
+            });
+        });
+        
+        heroContent.addEventListener('mouseleave', () => {
+            if (body.classList.contains('intro-animating')) return;
+            
+            heroTitle.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            const heroChars = heroContent.querySelectorAll('.hero-char');
+            heroChars.forEach(char => {
+                 char.style.setProperty('--char-translate-z', '0px');
             });
         });
     }
@@ -42,6 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             splashScreen.classList.add('hidden');
             body.classList.add('loaded');
+            
+            body.classList.add('intro-animating');
+            setTimeout(() => {
+                body.classList.remove('intro-animating');
+            }, 1500);
+
+            checkTimeForThemeSuggestion();
         }, SPLASH_ANIMATION_DURATION);
 
         setTimeout(() => {
@@ -119,133 +175,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- DYNAMIC CURSOR INTERACTION FOR HERO TEXT ---
-    function setupDynamicCursorInteraction() {
-        const heroChars = document.querySelectorAll('.hero-char');
-        const heroContent = document.querySelector('.hero-content');
-        
-        if (!heroChars.length || !heroContent) return;
-
-        // Mouse enter hero section
-        heroContent.addEventListener('mouseenter', () => {
-            // Hero section entered
-        });
-
-        // Mouse leave hero section
-        heroContent.addEventListener('mouseleave', () => {
-            // Remove all cursor effect classes
-            heroChars.forEach(char => {
-                char.classList.remove('cursor-near', 'cursor-far', 'magnetic');
-            });
-        });
-
-        // Mouse move within hero section
-        heroContent.addEventListener('mousemove', (e) => {
-            const rect = heroContent.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            heroChars.forEach((char, index) => {
-                const charRect = char.getBoundingClientRect();
-                const charCenterX = charRect.left + charRect.width / 2;
-                const charCenterY = charRect.top + charRect.height / 2;
-                
-                // Calculate distance from cursor to character
-                const distance = Math.sqrt(
-                    Math.pow(e.clientX - charCenterX, 2) + 
-                    Math.pow(e.clientY - charCenterY, 2)
-                );
-                
-                // Remove previous classes
-                char.classList.remove('cursor-near', 'cursor-far', 'magnetic');
-                
-                // Apply effects based on distance
-                if (distance < 50) {
-                    char.classList.add('cursor-near');
-                    // Magnetic effect - pull character towards cursor with rotation
-                    const pullX = (e.clientX - charCenterX) * 0.15;
-                    const pullY = (e.clientY - charCenterY) * 0.15;
-                    const rotation = (pullX * 0.1) + (pullY * 0.05);
-                    char.style.transform = `translateY(-12px) scale(1.15) rotate(${rotation}deg) translate(${pullX}px, ${pullY}px)`;
-                } else if (distance < 100) {
-                    char.classList.add('cursor-far');
-                    const pullX = (e.clientX - charCenterX) * 0.05;
-                    const pullY = (e.clientY - charCenterY) * 0.05;
-                    const rotation = (pullX * 0.05) + (pullY * 0.02);
-                    char.style.transform = `translateY(-6px) scale(1.08) rotate(${rotation}deg) translate(${pullX}px, ${pullY}px)`;
-                } else {
-                    char.style.transform = '';
-                }
-            });
-        });
-
-        // Add magnetic effect on mouse down
-        document.addEventListener('mousedown', () => {
-            heroChars.forEach(char => char.classList.add('magnetic'));
-        });
-
-        // Remove magnetic effect on mouse up
-        document.addEventListener('mouseup', () => {
-            heroChars.forEach(char => char.classList.remove('magnetic'));
-        });
-
-        // Touch support for mobile devices
-        let touchActive = false;
-        
-        heroContent.addEventListener('touchstart', (e) => {
-            touchActive = true;
-            const touch = e.touches[0];
-            const rect = heroContent.getBoundingClientRect();
-            const touchX = touch.clientX;
-            const touchY = touch.clientY;
-            
-            heroChars.forEach((char, index) => {
-                const charRect = char.getBoundingClientRect();
-                const charCenterX = charRect.left + charRect.width / 2;
-                const charCenterY = charRect.top + charRect.height / 2;
-                
-                const distance = Math.sqrt(
-                    Math.pow(touchX - charCenterX, 2) + 
-                    Math.pow(touchY - charCenterY, 2)
-                );
-                
-                if (distance < 80) {
-                    char.classList.add('cursor-near');
-                    const pullX = (touchX - charCenterX) * 0.1;
-                    const pullY = (touchY - charCenterY) * 0.1;
-                    const rotation = (pullX * 0.08) + (pullY * 0.04);
-                    char.style.transform = `translateY(-12px) scale(1.15) rotate(${rotation}deg) translate(${pullX}px, ${pullY}px)`;
-                }
-            });
-        });
-
-        heroContent.addEventListener('touchend', () => {
-            touchActive = false;
-            heroChars.forEach(char => {
-                char.classList.remove('cursor-near', 'cursor-far');
-                char.style.transform = '';
-            });
-        });
-    }
-
     // --- EASTER EGG SETUP ---
     function setupEasterEggs() {
-        // --- Konami Code ---
-        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-        let konamiPosition = 0;
+        const sequences = {
+            konami: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'],
+            matrix: ['m', 'a', 't', 'r', 'i', 'x']
+        };
+        let sequencePositions = { konami: 0, matrix: 0 };
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === konamiCode[konamiPosition]) {
-                konamiPosition++;
-                if (konamiPosition === konamiCode.length) {
+            const key = e.key.toLowerCase();
+            if (key === sequences.konami[sequencePositions.konami]) {
+                sequencePositions.konami++;
+                if (sequencePositions.konami === sequences.konami.length) {
                     document.body.classList.toggle('party-mode');
-                    konamiPosition = 0;
+                    sequencePositions.konami = 0;
                 }
             } else {
-                konamiPosition = 0;
+                sequencePositions.konami = 0;
+            }
+
+            if (key === sequences.matrix[sequencePositions.matrix]) {
+                sequencePositions.matrix++;
+                if (sequencePositions.matrix === sequences.matrix.length) {
+                    setTheme('matrix');
+                    sequencePositions.matrix = 0;
+                }
+            } else {
+                sequencePositions.matrix = 0;
             }
         });
 
-        // --- Logo Click Barrel Roll ---
         const logo = document.querySelector('.logo');
         if (logo) {
             let logoClicks = 0;
@@ -264,21 +224,195 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+        
+        const pythonDoodle = document.getElementById('python-doodle');
+        if (pythonDoodle) {
+            pythonDoodle.addEventListener('click', (e) => {
+                triggerConfetti(e.clientX, e.clientY);
+            });
+        }
+    }
+    
+    // --- EASTER EGG: Confetti Effect ---
+    function triggerConfetti(x, y) {
+        const colors = [
+            getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+            getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim(),
+            getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim()
+        ];
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('confetti-particle');
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            
+            const angle = Math.random() * 2 * Math.PI;
+            const velocity = Math.random() * 150 + 50;
+            
+            particle.style.setProperty('--x-end', `${Math.cos(angle) * velocity}px`);
+            particle.style.setProperty('--y-end', `${Math.sin(angle) * velocity}px`);
+
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 2000);
+        }
+    }
+    
+    // --- EASTER EGG: Time-based Theme Suggestion ---
+    function checkTimeForThemeSuggestion() {
+        if (sessionStorage.getItem('themeSuggestionShown')) return;
+        
+        const currentHour = new Date().getHours();
+        const isNight = currentHour >= 20 || currentHour < 6;
+        const isLightMode = body.getAttribute('data-theme') === 'light';
+
+        if (isNight && isLightMode) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <p>It's getting late... Switch to dark mode?</p>
+                <button>Switch</button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            toast.querySelector('button').addEventListener('click', () => {
+                document.getElementById('theme-toggle').click();
+                toast.classList.add('out');
+                setTimeout(() => toast.remove(), 500);
+            });
+
+            setTimeout(() => {
+                toast.classList.add('out');
+                setTimeout(() => toast.remove(), 500);
+            }, 6000);
+
+            sessionStorage.setItem('themeSuggestionShown', 'true');
+        }
+    }
+    
+    // --- EASTER EGG: Matrix Command Line Effect ---
+    let commandLineInterval = null;
+    function stopCommandLineEffect() {
+        clearInterval(commandLineInterval);
+        commandLineInterval = null;
+        const container = document.getElementById('command-line-background');
+        if (container) container.innerHTML = '';
+    }
+
+    function startCommandLineEffect() {
+        stopCommandLineEffect();
+        const container = document.getElementById('command-line-background');
+        if (!container) return;
+
+        const lines = [
+            "CONNECTING TO NODE 2A5B-0F...",
+            "CONNECTION ESTABLISHED.",
+            "RUNNING DECRYPTION ALGORITHM V2.8...",
+            "ACCESSING MAINFRAME: SHRIYAN.PORTFOLIO",
+            "C:\\> list_projects",
+            "> Optimus_Prime_Wallpaper.apk",
+            "> Anadrome_Video_Wallpaper.apk",
+            "> Emotional_Support_Chatbot.py",
+            "C:\\> run about_me.txt",
+            "> I'm a developer for Android and the web...",
+            "> Obsessed with performance and clean code.",
+            "SYSTEM READY."
+        ];
+        let currentLine = 0;
+        let currentChar = 0;
+
+        commandLineInterval = setInterval(() => {
+            if (currentLine >= lines.length) {
+                currentLine = 0;
+                currentChar = 0;
+                container.innerHTML = '';
+            }
+            
+            const line = lines[currentLine];
+            if (currentChar < line.length) {
+                container.innerHTML += line.charAt(currentChar);
+                currentChar++;
+            } else {
+                container.innerHTML += '<br>';
+                currentLine++;
+                currentChar = 0;
+            }
+        }, 50);
+    }
+
+
+    // --- THEME MANAGEMENT ---
+    const themeToggle = document.getElementById("theme-toggle");
+    
+    // Helper function that applies the theme and re-triggers animations
+    function _updateTheme(theme) {
+        body.classList.remove('loaded');
+        body.classList.add('intro-animating');
+
+        body.setAttribute("data-theme", theme);
+        createAnimatedPlaceholders();
+
+        if (theme === 'matrix') {
+            themeToggle.innerHTML = '<i class="fas fa-terminal"></i>';
+            startCommandLineEffect();
+        } else {
+            themeToggle.innerHTML = theme === "dark" ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            stopCommandLineEffect();
+        }
+        
+        setTimeout(() => {
+            body.classList.add('loaded');
+            setTimeout(() => {
+                body.classList.remove('intro-animating');
+            }, 1500);
+        }, 20);
+    }
+    
+    // Controller for theme changes
+    function setTheme(theme) {
+        const currentTheme = body.getAttribute('data-theme');
+        if (theme === 'matrix' && currentTheme !== 'matrix') {
+            // If switching TO matrix, play the glitch effect first
+            body.classList.add('glitching');
+            setTimeout(() => {
+                body.classList.remove('glitching');
+                _updateTheme(theme);
+            }, 1000); // Duration of the glitch animation
+        } else {
+            // For all other theme changes, update instantly
+            _updateTheme(theme);
+        }
+    }
+    
+    function toggleTheme() {
+        const currentTheme = body.getAttribute("data-theme");
+        let nextTheme = (currentTheme === 'light') ? 'dark' : 'light';
+        setTheme(nextTheme);
+    }
+
+    if (themeToggle) {
+        const initialTheme = body.getAttribute('data-theme') || 'light';
+        if (initialTheme === 'matrix') {
+             themeToggle.innerHTML = '<i class="fas fa-terminal"></i>';
+        } else {
+            themeToggle.innerHTML = initialTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+        themeToggle.addEventListener("click", toggleTheme);
     }
 
 
     // --- INITIALIZE ALL SCRIPTS ---
     setupHeroTextAnimation();
-    setupDynamicCursorInteraction();
+    setup3dTiltInteraction();
     runSplashScreen();
     createAnimatedPlaceholders();
     setupClockWidget(); 
-    setupEasterEggs(); // Initialize Easter eggs
+    setupEasterEggs();
 
-    const themeToggle = document.getElementById("theme-toggle");
+
+    // --- HEADER AUTO-HIDE ---
     const header = document.querySelector('.site-header');
-
-    // Header auto-hide logic
     let lastScrollTop = 0;
     let isHoveringHeader = false;
 
@@ -298,41 +432,8 @@ document.addEventListener('DOMContentLoaded', () => {
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     });
 
-    // Theme management
-    let currentTheme = body.getAttribute('data-theme') || 'light';
 
-    if (themeToggle) {
-        themeToggle.innerHTML = currentTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    }
-
-    if (themeToggle) {
-        // START: Modified Theme Toggle Logic for Hero Text Re-animation
-        const heroChars = document.querySelectorAll('.hero-char');
-
-        themeToggle.addEventListener("click", () => {
-            // 1. Add classes to instantly hide the characters without a transition
-            heroChars.forEach(char => {
-                char.classList.add('no-transition');
-                body.classList.remove('loaded'); // This sends them to their 'out' state
-            });
-
-            // 2. Change the theme while characters are hidden
-            currentTheme = body.getAttribute("data-theme") === "light" ? "dark" : "light";
-            body.setAttribute("data-theme", currentTheme);
-            createAnimatedPlaceholders();
-            themeToggle.innerHTML = currentTheme === "dark" ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            
-            // 3. Force a browser reflow and then re-enable transitions to play the 'in' animation
-            // A tiny timeout is a reliable way to ensure the browser registers the state change.
-            setTimeout(() => {
-                heroChars.forEach(char => char.classList.remove('no-transition'));
-                body.classList.add('loaded'); // This triggers the staggered 'in' animation
-            }, 20);
-        });
-        // END: Modified Theme Toggle Logic
-    }
-
-    // Smooth scrolling
+    // --- SMOOTH SCROLLING ---
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -343,27 +444,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Card Expansion Logic
+    // --- CARD EXPANSION LOGIC ---
     let hoverTimer = null;
     let activeCard = null;
     let isExpanding = false;
     const HOVER_DELAY = 1000;
 
     const expandCard = (card) => {
-        // Comprehensive safety checks
+        if (window.matchMedia("(max-width: 768px)").matches) return;
         if (!card || activeCard === card || isExpanding) return;
-        
-        // Prevent expansion if already in expanded mode
         if (body.classList.contains("expanded-mode")) return;
         
         closeCard();
         isExpanding = true;
         activeCard = card;
         
-        // Get current position before any changes
         const rect = card.getBoundingClientRect();
         
-        // Apply fixed positioning
         Object.assign(card.style, { 
             position: 'fixed', 
             top: `${rect.top}px`, 
@@ -373,14 +470,10 @@ document.addEventListener('DOMContentLoaded', () => {
             zIndex: '10000' 
         });
         
-        card.offsetHeight; // Force reflow
+        card.offsetHeight;
         card.classList.add("focused");
         body.classList.add("expanded-mode");
-        
-        // Immediately clear any existing hover timers and prevent new ones
         cancelHoverTimer();
-        
-        // Add a flag to the body to completely disable hover interactions
         body.setAttribute('data-no-hover', 'true');
         
         setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "center" }), 500);
@@ -388,12 +481,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const closeCard = () => {
-        // Clear all timers
         clearTimeout(hoverTimer);
         hoverTimer = null;
-        
         if (activeCard) {
-            // Reset the card to its original state
             activeCard.classList.remove("focused");
             activeCard.style.position = '';
             activeCard.style.top = '';
@@ -403,30 +493,16 @@ document.addEventListener('DOMContentLoaded', () => {
             activeCard.style.zIndex = '';
             activeCard = null;
         }
-        
-        // Reset all body states
         body.classList.remove("expanded-mode");
         body.removeAttribute('data-no-hover');
-        
-        // Reset expansion state
         isExpanding = false;
-        
-        // Force a small delay before allowing new hover interactions
-        setTimeout(() => {
-            // This ensures the DOM has fully updated before re-enabling hover
-        }, 100);
+        setTimeout(() => {}, 100);
     };
 
     const startHoverTimer = (card) => {
-        // Multiple safety checks to prevent hover expansion when not allowed
-        if (!card || 
-            card.classList.contains("focused") || 
-            body.classList.contains("expanded-mode") || 
-            activeCard || 
-            isExpanding) {
+        if (!card || card.classList.contains("focused") || body.classList.contains("expanded-mode") || activeCard || isExpanding) {
             return;
         }
-        
         clearTimeout(hoverTimer);
         hoverTimer = setTimeout(() => expandCard(card), HOVER_DELAY);
     };
@@ -438,19 +514,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Hover expansion logic - completely disabled when any card is expanded
     document.addEventListener("mouseenter", (e) => {
-        // MODIFICATION: Ignore hover logic on mobile devices
         if (window.matchMedia("(max-width: 768px)").matches) return;
-
-        // Multiple safety checks to completely disable hover expansion
-        if (body.classList.contains("expanded-mode") || 
-            activeCard || 
-            body.getAttribute('data-no-hover') === 'true' ||
-            isExpanding) {
+        if (body.classList.contains("expanded-mode") || activeCard || body.getAttribute('data-no-hover') === 'true' || isExpanding) {
             return;
         }
-        
         const card = e.target.closest(".project-card");
         if (card && !card.classList.contains("focused")) {
             startHoverTimer(card);
@@ -458,74 +526,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }, true);
 
     document.addEventListener("mouseleave", (e) => {
-        // MODIFICATION: Ignore hover logic on mobile devices
         if (window.matchMedia("(max-width: 768px)").matches) return;
-        
-        // Multiple safety checks to completely disable hover expansion
-        if (body.classList.contains("expanded-mode") || 
-            activeCard || 
-            body.getAttribute('data-no-hover') === 'true' ||
-            isExpanding) {
+        if (body.classList.contains("expanded-mode") || activeCard || body.getAttribute('data-no-hover') === 'true' || isExpanding) {
             return;
         }
-        
         const card = e.target.closest(".project-card");
         if (card && !card.classList.contains("focused")) {
             cancelHoverTimer();
         }
     }, true);
 
-    // Click expansion logic
     document.addEventListener("click", (e) => {
         const card = e.target.closest(".project-card");
         const actionButton = e.target.closest('.card-action-button');
-        
-        // If clicking on action button, don't expand
         if (actionButton) return;
-        
-        // If clicking on a project card
         if (card) {
-            // If card is already focused, close it
             if (card.classList.contains("focused")) {
                 closeCard();
-                // Prevent event bubbling to avoid triggering other card expansions
-                e.stopPropagation();
-                e.preventDefault();
-                return;
             } else {
-                // Expand the clicked card
                 expandCard(card);
-                // Prevent event bubbling to avoid conflicts
-                e.stopPropagation();
-                return;
             }
+            e.stopPropagation();
+            return;
         }
-        
-        // If clicking outside any card and there's an active card, close it
         if (activeCard && !activeCard.contains(e.target)) {
             closeCard();
         }
     });
 
-    // Keyboard support
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && activeCard) closeCard();
     });
 
-    // Touch support for mobile devices
     let touchTimer = null;
     let touchStartTime = 0;
-    const TOUCH_DELAY = 300; // Shorter delay for touch
+    const TOUCH_DELAY = 300;
 
     document.addEventListener("touchstart", (e) => {
         const card = e.target.closest(".project-card");
         if (card && !card.classList.contains("focused")) {
             touchStartTime = Date.now();
             touchTimer = setTimeout(() => {
-                // Only expand on long press if not already focused
-                if (!card.classList.contains("focused")) {
-                    expandCard(card);
-                }
+                if (!card.classList.contains("focused")) expandCard(card);
             }, TOUCH_DELAY);
         }
     }, { passive: true });
@@ -533,27 +575,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener("touchend", (e) => {
         const card = e.target.closest(".project-card");
         const touchDuration = Date.now() - touchStartTime;
-        
-        // Clear the timer
-        if (touchTimer) {
-            clearTimeout(touchTimer);
-            touchTimer = null;
-        }
-        
-        // If it's a short tap and the card isn't focused, expand it
+        if (touchTimer) clearTimeout(touchTimer);
+        touchTimer = null;
         if (card && touchDuration < TOUCH_DELAY && !card.classList.contains("focused")) {
             expandCard(card);
         }
     }, { passive: true });
 
     document.addEventListener("touchmove", () => {
-        if (touchTimer) {
-            clearTimeout(touchTimer);
-            touchTimer = null;
-        }
+        if (touchTimer) clearTimeout(touchTimer);
+        touchTimer = null;
     }, { passive: true });
 
-    // Initialize animations for content sections
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) entry.target.classList.add('in-view');
@@ -562,13 +595,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.anim-fade-in, .anim-slide-in').forEach(el => observer.observe(el));
     
-    // Global protection against hover interactions when in expanded mode
     document.addEventListener('mousemove', (e) => {
-        // If we're in expanded mode, prevent any hover-related interactions
-        if (body.classList.contains("expanded-mode") || 
-            body.getAttribute('data-no-hover') === 'true' ||
-            activeCard) {
-            // Cancel any existing hover timers
+        if (body.classList.contains("expanded-mode") || body.getAttribute('data-no-hover') === 'true' || activeCard) {
             cancelHoverTimer();
             return;
         }
