@@ -302,34 +302,84 @@ document.addEventListener('DOMContentLoaded', () => {
     const HOVER_DELAY = 1000;
 
     const expandCard = (card) => {
-        if (activeCard === card || isExpanding) return;
+        // Comprehensive safety checks
+        if (!card || activeCard === card || isExpanding) return;
+        
+        // Prevent expansion if already in expanded mode
+        if (body.classList.contains("expanded-mode")) return;
+        
         closeCard();
         isExpanding = true;
         activeCard = card;
+        
+        // Get current position before any changes
         const rect = card.getBoundingClientRect();
-        Object.assign(card.style, { position: 'fixed', top: `${rect.top}px`, left: `${rect.left}px`, width: `${rect.width}px`, height: `${rect.height}px`, zIndex: '10000' });
+        
+        // Apply fixed positioning
+        Object.assign(card.style, { 
+            position: 'fixed', 
+            top: `${rect.top}px`, 
+            left: `${rect.left}px`, 
+            width: `${rect.width}px`, 
+            height: `${rect.height}px`, 
+            zIndex: '10000' 
+        });
+        
         card.offsetHeight; // Force reflow
         card.classList.add("focused");
         body.classList.add("expanded-mode");
+        
+        // Immediately clear any existing hover timers and prevent new ones
+        cancelHoverTimer();
+        
+        // Add a flag to the body to completely disable hover interactions
+        body.setAttribute('data-no-hover', 'true');
+        
         setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "center" }), 500);
         setTimeout(() => isExpanding = false, 500);
     };
 
     const closeCard = () => {
+        // Clear all timers
         clearTimeout(hoverTimer);
         hoverTimer = null;
+        
         if (activeCard) {
+            // Reset the card to its original state
             activeCard.classList.remove("focused");
-            body.classList.remove("expanded-mode");
-            Object.assign(activeCard.style, { position: '', top: '', left: '', width: '', height: '', zIndex: '' });
+            activeCard.style.position = '';
+            activeCard.style.top = '';
+            activeCard.style.left = '';
+            activeCard.style.width = '';
+            activeCard.style.height = '';
+            activeCard.style.zIndex = '';
             activeCard = null;
         }
+        
+        // Reset all body states
+        body.classList.remove("expanded-mode");
+        body.removeAttribute('data-no-hover');
+        
+        // Reset expansion state
         isExpanding = false;
+        
+        // Force a small delay before allowing new hover interactions
+        setTimeout(() => {
+            // This ensures the DOM has fully updated before re-enabling hover
+        }, 100);
     };
 
     const startHoverTimer = (card) => {
+        // Multiple safety checks to prevent hover expansion when not allowed
+        if (!card || 
+            card.classList.contains("focused") || 
+            body.classList.contains("expanded-mode") || 
+            activeCard || 
+            isExpanding) {
+            return;
+        }
+        
         clearTimeout(hoverTimer);
-        if (card.classList.contains("focused")) return;
         hoverTimer = setTimeout(() => expandCard(card), HOVER_DELAY);
     };
 
@@ -340,39 +390,113 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Hover expansion logic - completely disabled when any card is expanded
     document.addEventListener("mouseenter", (e) => {
+        // Multiple safety checks to completely disable hover expansion
+        if (body.classList.contains("expanded-mode") || 
+            activeCard || 
+            body.getAttribute('data-no-hover') === 'true' ||
+            isExpanding) {
+            return;
+        }
+        
         const card = e.target.closest(".project-card");
-        if (card && !card.classList.contains("focused")) startHoverTimer(card);
+        if (card && !card.classList.contains("focused")) {
+            startHoverTimer(card);
+        }
     }, true);
 
     document.addEventListener("mouseleave", (e) => {
+        // Multiple safety checks to completely disable hover expansion
+        if (body.classList.contains("expanded-mode") || 
+            activeCard || 
+            body.getAttribute('data-no-hover') === 'true' ||
+            isExpanding) {
+            return;
+        }
+        
         const card = e.target.closest(".project-card");
-        if (card && !card.classList.contains("focused")) cancelHoverTimer();
+        if (card && !card.classList.contains("focused")) {
+            cancelHoverTimer();
+        }
     }, true);
 
+    // Click expansion logic
     document.addEventListener("click", (e) => {
-        if (e.target.closest('.card-action-button')) return;
-        if (activeCard && !activeCard.contains(e.target)) closeCard();
+        const card = e.target.closest(".project-card");
+        const actionButton = e.target.closest('.card-action-button');
+        
+        // If clicking on action button, don't expand
+        if (actionButton) return;
+        
+        // If clicking on a project card
+        if (card) {
+            // If card is already focused, close it
+            if (card.classList.contains("focused")) {
+                closeCard();
+                // Prevent event bubbling to avoid triggering other card expansions
+                e.stopPropagation();
+                e.preventDefault();
+                return;
+            } else {
+                // Expand the clicked card
+                expandCard(card);
+                // Prevent event bubbling to avoid conflicts
+                e.stopPropagation();
+                return;
+            }
+        }
+        
+        // If clicking outside any card and there's an active card, close it
+        if (activeCard && !activeCard.contains(e.target)) {
+            closeCard();
+        }
     });
 
+    // Keyboard support
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && activeCard) closeCard();
     });
 
+    // Touch support for mobile devices
     let touchTimer = null;
+    let touchStartTime = 0;
+    const TOUCH_DELAY = 300; // Shorter delay for touch
+
     document.addEventListener("touchstart", (e) => {
         const card = e.target.closest(".project-card");
         if (card && !card.classList.contains("focused")) {
-            touchTimer = setTimeout(() => expandCard(card), HOVER_DELAY);
+            touchStartTime = Date.now();
+            touchTimer = setTimeout(() => {
+                // Only expand on long press if not already focused
+                if (!card.classList.contains("focused")) {
+                    expandCard(card);
+                }
+            }, TOUCH_DELAY);
         }
     }, { passive: true });
 
-    document.addEventListener("touchend", () => {
-        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
+    document.addEventListener("touchend", (e) => {
+        const card = e.target.closest(".project-card");
+        const touchDuration = Date.now() - touchStartTime;
+        
+        // Clear the timer
+        if (touchTimer) {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+        }
+        
+        // If it's a short tap and the card isn't focused, expand it
+        if (card && touchDuration < TOUCH_DELAY && !card.classList.contains("focused")) {
+            expandCard(card);
+        }
     }, { passive: true });
 
     document.addEventListener("touchmove", () => {
-        if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; }
+        if (touchTimer) {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+        }
     }, { passive: true });
 
     // Initialize animations for content sections
@@ -383,5 +507,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
     document.querySelectorAll('.anim-fade-in, .anim-slide-in').forEach(el => observer.observe(el));
+    
+    // Global protection against hover interactions when in expanded mode
+    document.addEventListener('mousemove', (e) => {
+        // If we're in expanded mode, prevent any hover-related interactions
+        if (body.classList.contains("expanded-mode") || 
+            body.getAttribute('data-no-hover') === 'true' ||
+            activeCard) {
+            // Cancel any existing hover timers
+            cancelHoverTimer();
+            return;
+        }
+    }, { passive: true });
 });
 
