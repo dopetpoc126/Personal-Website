@@ -30,6 +30,6 @@ Built with **HTML, CSS, and JavaScript**—optimized for smooth animations, resp
 Clone the repo and open `index.html` in a browser:
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone [https://github.com/your-username/your-repo.git](https://github.com/dopetpoc126/portfolio)
 cd your-repo
 open index.html   # or double-click in file explorer
