@@ -787,3 +787,36 @@ body.loaded .in-view {
         opacity: 0;
     }
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* EASTER EGG STYLES                                                          */
+/* -------------------------------------------------------------------------- */
+.logo.barrel-roll {
+    animation: barrelRoll 1s ease-in-out;
+}
+
+@keyframes barrelRoll {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rainbow-border {
+    0% { --border-angle: 0deg; }
+    100% { --border-angle: 360deg; }
+}
+
+body.party-mode .site-header {
+    border: 2px solid;
+    border-image: conic-gradient(from var(--border-angle), #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000) 1;
+    animation: rainbow-border 2s linear infinite;
+}
+
+body.party-mode .doodle {
+    animation-duration: 3s !important;
+    animation-timing-function: linear !important;
+}
+
+body.party-mode .doodle.tech-logo {
+    animation-duration: 5s !important;
+}

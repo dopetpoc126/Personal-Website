@@ -1,3 +1,11 @@
+// --- EASTER EGG: Console Message ---
+console.log(
+  `%cHello, curious developer! Thanks for checking out my portfolio's code.`,
+  "color: #6A38C2; font-size: 16px; font-family: sans-serif; font-weight: bold;"
+);
+console.log("Try entering the Konami code (↑ ↑ ↓ ↓ ← → ← → B A) for a surprise!");
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
 
@@ -220,12 +228,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- EASTER EGG SETUP ---
+    function setupEasterEggs() {
+        // --- Konami Code ---
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiPosition = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiPosition]) {
+                konamiPosition++;
+                if (konamiPosition === konamiCode.length) {
+                    document.body.classList.toggle('party-mode');
+                    konamiPosition = 0;
+                }
+            } else {
+                konamiPosition = 0;
+            }
+        });
+
+        // --- Logo Click Barrel Roll ---
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            let logoClicks = 0;
+            let clickTimer = null;
+            logo.addEventListener('click', () => {
+                logoClicks++;
+                clearTimeout(clickTimer);
+                if (logoClicks === 5) {
+                    logo.classList.add('barrel-roll');
+                    logo.addEventListener('animationend', () => {
+                        logo.classList.remove('barrel-roll');
+                    }, { once: true });
+                    logoClicks = 0;
+                } else {
+                    clickTimer = setTimeout(() => logoClicks = 0, 1000);
+                }
+            });
+        }
+    }
+
+
     // --- INITIALIZE ALL SCRIPTS ---
     setupHeroTextAnimation();
     setupDynamicCursorInteraction();
     runSplashScreen();
     createAnimatedPlaceholders();
     setupClockWidget(); 
+    setupEasterEggs(); // Initialize Easter eggs
 
     const themeToggle = document.getElementById("theme-toggle");
     const header = document.querySelector('.site-header');
@@ -392,6 +440,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hover expansion logic - completely disabled when any card is expanded
     document.addEventListener("mouseenter", (e) => {
+        // MODIFICATION: Ignore hover logic on mobile devices
+        if (window.matchMedia("(max-width: 768px)").matches) return;
+
         // Multiple safety checks to completely disable hover expansion
         if (body.classList.contains("expanded-mode") || 
             activeCard || 
@@ -407,6 +458,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, true);
 
     document.addEventListener("mouseleave", (e) => {
+        // MODIFICATION: Ignore hover logic on mobile devices
+        if (window.matchMedia("(max-width: 768px)").matches) return;
+        
         // Multiple safety checks to completely disable hover expansion
         if (body.classList.contains("expanded-mode") || 
             activeCard || 
@@ -520,4 +574,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: true });
 });
-
