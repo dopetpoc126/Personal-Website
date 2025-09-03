@@ -184,8 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let sequencePositions = { konami: 0, matrix: 0 };
 
         document.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            if (key === sequences.konami[sequencePositions.konami]) {
+            // FIX: Handle each sequence separately to avoid conflicts.
+
+            // --- Konami Code Logic (case-sensitive for arrow keys) ---
+            const konamiKey = e.key;
+            if (konamiKey === sequences.konami[sequencePositions.konami]) {
                 sequencePositions.konami++;
                 if (sequencePositions.konami === sequences.konami.length) {
                     document.body.classList.toggle('party-mode');
@@ -195,7 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 sequencePositions.konami = 0;
             }
 
-            if (key === sequences.matrix[sequencePositions.matrix]) {
+            // --- Matrix Code Logic (case-insensitive) ---
+            const matrixKey = e.key.toLowerCase();
+            if (matrixKey === sequences.matrix[sequencePositions.matrix]) {
                 sequencePositions.matrix++;
                 if (sequencePositions.matrix === sequences.matrix.length) {
                     setTheme('matrix');
@@ -345,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- THEME MANAGEMENT ---
     const themeToggle = document.getElementById("theme-toggle");
     
-    // Helper function that applies the theme and re-triggers animations
     function _updateTheme(theme) {
         body.classList.remove('loaded');
         body.classList.add('intro-animating');
@@ -369,18 +373,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 20);
     }
     
-    // Controller for theme changes
     function setTheme(theme) {
         const currentTheme = body.getAttribute('data-theme');
         if (theme === 'matrix' && currentTheme !== 'matrix') {
-            // If switching TO matrix, play the glitch effect first
             body.classList.add('glitching');
             setTimeout(() => {
                 body.classList.remove('glitching');
                 _updateTheme(theme);
-            }, 1000); // Duration of the glitch animation
+            }, 1000);
         } else {
-            // For all other theme changes, update instantly
             _updateTheme(theme);
         }
     }
