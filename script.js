@@ -111,8 +111,118 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- DYNAMIC CURSOR INTERACTION FOR HERO TEXT ---
+    function setupDynamicCursorInteraction() {
+        const heroChars = document.querySelectorAll('.hero-char');
+        const heroContent = document.querySelector('.hero-content');
+        
+        if (!heroChars.length || !heroContent) return;
+
+        // Mouse enter hero section
+        heroContent.addEventListener('mouseenter', () => {
+            // Hero section entered
+        });
+
+        // Mouse leave hero section
+        heroContent.addEventListener('mouseleave', () => {
+            // Remove all cursor effect classes
+            heroChars.forEach(char => {
+                char.classList.remove('cursor-near', 'cursor-far', 'magnetic');
+            });
+        });
+
+        // Mouse move within hero section
+        heroContent.addEventListener('mousemove', (e) => {
+            const rect = heroContent.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            heroChars.forEach((char, index) => {
+                const charRect = char.getBoundingClientRect();
+                const charCenterX = charRect.left + charRect.width / 2;
+                const charCenterY = charRect.top + charRect.height / 2;
+                
+                // Calculate distance from cursor to character
+                const distance = Math.sqrt(
+                    Math.pow(e.clientX - charCenterX, 2) + 
+                    Math.pow(e.clientY - charCenterY, 2)
+                );
+                
+                // Remove previous classes
+                char.classList.remove('cursor-near', 'cursor-far', 'magnetic');
+                
+                // Apply effects based on distance
+                if (distance < 50) {
+                    char.classList.add('cursor-near');
+                    // Magnetic effect - pull character towards cursor with rotation
+                    const pullX = (e.clientX - charCenterX) * 0.15;
+                    const pullY = (e.clientY - charCenterY) * 0.15;
+                    const rotation = (pullX * 0.1) + (pullY * 0.05);
+                    char.style.transform = `translateY(-12px) scale(1.15) rotate(${rotation}deg) translate(${pullX}px, ${pullY}px)`;
+                } else if (distance < 100) {
+                    char.classList.add('cursor-far');
+                    const pullX = (e.clientX - charCenterX) * 0.05;
+                    const pullY = (e.clientY - charCenterY) * 0.05;
+                    const rotation = (pullX * 0.05) + (pullY * 0.02);
+                    char.style.transform = `translateY(-6px) scale(1.08) rotate(${rotation}deg) translate(${pullX}px, ${pullY}px)`;
+                } else {
+                    char.style.transform = '';
+                }
+            });
+        });
+
+        // Add magnetic effect on mouse down
+        document.addEventListener('mousedown', () => {
+            heroChars.forEach(char => char.classList.add('magnetic'));
+        });
+
+        // Remove magnetic effect on mouse up
+        document.addEventListener('mouseup', () => {
+            heroChars.forEach(char => char.classList.remove('magnetic'));
+        });
+
+        // Touch support for mobile devices
+        let touchActive = false;
+        
+        heroContent.addEventListener('touchstart', (e) => {
+            touchActive = true;
+            const touch = e.touches[0];
+            const rect = heroContent.getBoundingClientRect();
+            const touchX = touch.clientX;
+            const touchY = touch.clientY;
+            
+            heroChars.forEach((char, index) => {
+                const charRect = char.getBoundingClientRect();
+                const charCenterX = charRect.left + charRect.width / 2;
+                const charCenterY = charRect.top + charRect.height / 2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(touchX - charCenterX, 2) + 
+                    Math.pow(touchY - charCenterY, 2)
+                );
+                
+                if (distance < 80) {
+                    char.classList.add('cursor-near');
+                    const pullX = (touchX - charCenterX) * 0.1;
+                    const pullY = (touchY - charCenterY) * 0.1;
+                    const rotation = (pullX * 0.08) + (pullY * 0.04);
+                    char.style.transform = `translateY(-12px) scale(1.15) rotate(${rotation}deg) translate(${pullX}px, ${pullY}px)`;
+                }
+            });
+        });
+
+        heroContent.addEventListener('touchend', () => {
+            touchActive = false;
+            heroChars.forEach(char => {
+                char.classList.remove('cursor-near', 'cursor-far');
+                char.style.transform = '';
+            });
+        });
+    }
+
     // --- INITIALIZE ALL SCRIPTS ---
     setupHeroTextAnimation();
+    setupDynamicCursorInteraction();
     runSplashScreen();
     createAnimatedPlaceholders();
     setupClockWidget(); 
@@ -274,3 +384,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.anim-fade-in, .anim-slide-in').forEach(el => observer.observe(el));
 });
+

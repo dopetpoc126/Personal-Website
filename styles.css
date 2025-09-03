@@ -182,25 +182,49 @@ body {
 .hero-line {
     display: flex;
     justify-content: center;
+    position: relative;
 }
 
 .hero-char {
     display: inline-block;
     transform: translateY(115%);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                text-shadow 0.3s ease;
-    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
 }
 
 .hero-char:hover {
-    transform: translateY(-12px);
-    color: var(--text-color);
-    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--secondary-color);
+    transform: translateY(-15px) scale(1.2) rotate(5deg);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hero-char.cursor-near {
+    transform: translateY(-12px) scale(1.15) rotate(3deg);
+    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.25));
+    transition: all 0.2s ease;
+}
+
+.hero-char.cursor-far {
+    transform: translateY(-6px) scale(1.08) rotate(1deg);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    transition: all 0.3s ease;
+}
+
+.hero-char.magnetic {
+    transition: all 0.1s ease;
 }
 
 body.loaded .hero-char {
     transform: translateY(0);
 }
+
+/* Magnetic effect container */
+.hero-content {
+    position: relative;
+}
+
+
 
 /* Helper class to temporarily disable transitions for the theme-change animation */
 .no-transition {
@@ -394,27 +418,34 @@ main {
 /* -------------------------------------------------------------------------- */
 /* CARD EXPANSION & ANIMATIONS */
 /* -------------------------------------------------------------------------- */
-.blur-overlay { 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    background-color: transparent;
-    z-index: 9999; 
-    opacity: 0; 
-    pointer-events: none; 
-    transition: opacity 0.5s ease; 
+body.expanded-mode { 
+    overflow: hidden; 
 }
-.blur-overlay.overlay-active { opacity: 1; pointer-events: auto; }
-body.expanded-mode { overflow: hidden; }
 
 body.expanded-mode .site-header {
-  transform: translateY(-150%);
+    transform: translateY(-150%);
+    transition: transform 0.4s ease;
 }
 
-body.expanded-mode .project-card:not(.focused) { opacity: 0; transform: scale(0.9); transition: opacity 0.4s ease, transform 0.4s ease; }
-.project-card.focused { position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: clamp(300px, 90vw, 800px) !important; height: clamp(400px, 80vh, 600px) !important; z-index: 10000 !important; border-radius: var(--shape-corner-large) !important; overflow-y: auto !important; transition: all 0.5s var(--motion-easing) !important; }
+body.expanded-mode .project-card:not(.focused) { 
+    opacity: 0; 
+    transform: scale(0.9); 
+    transition: opacity 0.4s ease, transform 0.4s ease; 
+}
+
+.project-card.focused { 
+    position: fixed !important; 
+    top: 50% !important; 
+    left: 50% !important; 
+    transform: translate(-50%, -50%) !important; 
+    width: clamp(300px, 90vw, 800px) !important; 
+    height: clamp(400px, 80vh, 600px) !important; 
+    z-index: 10000 !important; 
+    border-radius: var(--shape-corner-large) !important; 
+    overflow-y: auto !important; 
+    transition: all 0.5s ease !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25) !important;
+}
 
 /* Scroll Animations */
 .anim-fade-in, .anim-slide-in {
@@ -435,6 +466,10 @@ body.loaded .in-view {
 /* MOBILE OPTIMIZATIONS                                                       */
 /* -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+  
   .content-section {
       padding: 80px 0;
   }
@@ -445,16 +480,22 @@ body.loaded .in-view {
   }
   
   .site-header {
-      margin: 4px auto;
+      margin: 8px auto;
       width: calc(100% - 16px);
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
   }
 
   .site-header .container {
-      height: 44px;
+      height: 56px;
+      padding: 0 16px;
+      gap: 16px;
   }
 
   .site-header .logo {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
+      font-weight: 800;
+      flex-shrink: 0;
   }
   
   .material-widget.digital-clock {
@@ -462,20 +503,34 @@ body.loaded .in-view {
   }
 
   .site-header .icon-button {
-      width: 36px;
-      height: 36px;
-      font-size: 1rem;
+      width: 40px;
+      height: 40px;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+  }
+
+  .site-nav {
+      flex: 1;
+      display: flex;
+      justify-content: center;
   }
 
   .site-nav ul {
-      gap: 12px;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
   }
 
   .site-nav a {
-      padding: 6px 10px;
-      font-size: 0.9rem;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
       box-shadow: none;
       background-color: transparent;
+      border-radius: 20px;
+      white-space: nowrap;
+      min-width: 60px;
+      text-align: center;
   }
 
   .site-nav a:hover,
@@ -486,24 +541,147 @@ body.loaded .in-view {
   }
 
   .site-nav a:hover {
-      background-color: var(--surface-color);
+      background-color: color-mix(in srgb, var(--secondary-color) 60%, transparent);
       color: var(--text-color);
   }
 
   .site-nav a.active,
   .site-nav a:active {
-      background-color: var(--secondary-color);
-      color: var(--text-color);
+      background-color: var(--primary-color);
+      color: var(--surface-color);
+      font-weight: 700;
+  }
+
+  .header-actions {
+      gap: 12px;
+      flex-shrink: 0;
   }
 
   .content-section .container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
   }
 
   .body-large {
     text-align: center;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .hero-section {
+    padding: 40px 0;
+    min-height: 80vh;
+  }
+
+  .hero-content {
+    text-align: center;
+    align-items: center;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    width: 100%;
+  }
+
+  .project-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .card-content {
+    padding: 24px;
+    text-align: center;
+  }
+
+  .social-links {
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .social-links .icon-button.large {
+    width: 56px;
+    height: 56px;
+    font-size: 1.5rem;
+  }
+
+  .display-large {
+    font-size: clamp(2.5rem, 1.5rem + 4vw, 4rem);
+    text-align: center;
+  }
+
+  .display-medium {
+    font-size: clamp(2rem, 1.5rem + 3vw, 3rem);
+    text-align: center;
+  }
+
+  .headline-medium {
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.5rem);
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .title-large {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .body-medium {
+    text-align: center;
+  }
+
+  /* Extra small mobile devices */
+  @media (max-width: 480px) {
+    .site-header {
+      margin: 4px auto;
+      width: calc(100% - 8px);
+    }
+
+    .site-header .container {
+      height: 52px;
+      padding: 0 12px;
+      gap: 12px;
+    }
+
+    .site-header .logo {
+      font-size: 1.2rem;
+    }
+
+    .site-nav a {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      min-width: 50px;
+    }
+
+    .site-header .icon-button {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+    }
+
+    .header-actions {
+      gap: 8px;
+    }
+  }
+
+  /* Landscape mobile optimization */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .site-header {
+      margin: 4px auto;
+    }
+
+    .site-header .container {
+      height: 48px;
+    }
+
+    .site-nav a {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
   }
 }
 
@@ -584,6 +762,14 @@ body.loaded .in-view {
 .html-logo { left: 10%; width: 45px; height: 50px; animation-delay: -19s; animation-duration: 37s; }
 .css-logo { left: 80%; width: 48px; height: 52px; animation-delay: -6s; animation-duration: 29s; }
 .python-logo { left: 25%; width: 55px; height: 55px; animation-delay: -24s; animation-duration: 38s; }
+
+/* Widget-inspired backdrop shapes */
+.weather-cloud { left: 15%; width: 70px; height: 45px; animation-delay: -8s; animation-duration: 45s; border-radius: 35px; background: linear-gradient(135deg, var(--accent-color), var(--secondary-color)); }
+.music-note { left: 75%; width: 40px; height: 60px; animation-delay: -16s; animation-duration: 42s; background: var(--primary-color); border-radius: 20px 20px 0 0; }
+.battery-shape { left: 45%; width: 50px; height: 30px; animation-delay: -12s; animation-duration: 39s; background: var(--accent-color); border-radius: 8px; }
+.notification-bell { left: 85%; width: 35px; height: 35px; animation-delay: -20s; animation-duration: 36s; background: var(--primary-color); border-radius: 50%; }
+.camera-lens { left: 5%; width: 55px; height: 55px; animation-delay: -4s; animation-duration: 44s; background: var(--secondary-color); border-radius: 50%; }
+.wifi-signal { left: 65%; width: 60px; height: 40px; animation-delay: -18s; animation-duration: 41s; background: var(--accent-color); border-radius: 20px; }
 
 @keyframes drift {
     0% {
