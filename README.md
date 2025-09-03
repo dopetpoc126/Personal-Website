@@ -31,5 +31,5 @@ Clone the repo and open `index.html` in a browser:
 
 ```bash
 git clone https://github.com/dopetpoc126/portfolio.git
-cd your-repo
+cd portfolio
 open index.html   # or double-click in file explorer
