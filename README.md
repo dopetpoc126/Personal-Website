@@ -18,14 +18,6 @@ Built with **HTML, CSS, and JavaScript**—optimized for smooth animations, resp
 - **Smooth Scrolling & Section Animations**
 - **Interactive Background** with tech logos and doodles
 
-## Sections
-- **About Me** – Background and skills
-- **Portfolio** – Highlighted projects:
-  - Optimus Prime Live Wallpaper  
-  - Anadrome (video live wallpaper app)  
-  - Emotional Support Chatbot  
-- **Contact** – GitHub, LinkedIn, Email
-
 ## Getting Started
 Clone the repo and open `index.html` in a browser:
 
